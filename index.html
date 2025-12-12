@@ -513,68 +513,25 @@
     </main>
   </div>
 
-  <script>
-    // --------------------------------------------------------------------
-    // SAMPLE compatibility dataset
-    // Replace/expand this with your real internal/official GenerLink list.
-    // --------------------------------------------------------------------
-    const COMPAT_DATA = [
-      {
-        brand: "Generac",
-        models: ["GP6500", "GP7500E", "GP8000E", "GP8000E-2"],
-        status: "compatible",
-        notes: "Listed as compatible when equipped with a 120/240V 30A twist-lock (L14-30) outlet.",
-        outlet: "L14-30 120/240V, 30A",
-        recommended: [],
-        flags: ["portable", "aircooled"]
-      },
-      {
-        brand: "Generac",
-        models: ["XG8000E"],
-        status: "compatible",
-        notes: "Compatible with GenerLink when wired using the 30A 120/240V outlet and properly sized cord.",
-        outlet: "L14-30 120/240V, 30A",
-        recommended: [],
-        flags: ["portable", "aircooled"]
-      },
-      {
-        brand: "Firman",
-        models: ["P08003", "P08004", "T08072"],
-        status: "compatible",
-        notes: "Certain Firman 8 kW models are compatible; confirm exact model and revision against the latest GenerLink chart.",
-        outlet: "30A 120/240V",
-        recommended: [],
-        flags: ["portable"]
-      },
-      {
-        brand: "Firman",
-        models: ["P08008"],
-        status: "not",
-        notes: "This specific model / revision is not listed as compatible in our current reference.",
-        outlet: null,
-        recommended: ["Firman T08072", "Generac GP8000E"],
-        flags: ["portable"]
-      },
-      {
-        brand: "Honda",
-        models: ["EU7000IS", "EU7000", "EU6500IS"],
-        status: "conditional",
-        notes: "Inverter units may be compatible when equipped with a 120/240V outlet and used within the rated capacity. Must be confirmed against official list.",
-        outlet: "30A 120/240V (if equipped)",
-        recommended: [],
-        flags: ["portable", "inverter"]
-      },
-      {
-        brand: "Champion",
-        models: ["100520", "100519"],
-        status: "compatible",
-        notes: "Select Champion dual-fuel 8.75–10 kW units appear on the compatibility list; confirm by exact model number.",
-        outlet: "L14-30 120/240V",
-        recommended: [],
-        flags: ["portable", "dualfuel"]
-      }
-      // Add more entries as needed…
-    ];
+ <script>
+  // Global compatibility dataset – loaded from JSON file
+  let COMPAT_DATA = [];
+  let compatLoaded = false;
+
+  // Load JSON on page load
+  fetch("generlink_compat_data.json")
+    .then(res => res.json())
+    .then(data => {
+      COMPAT_DATA = data;
+      compatLoaded = true;
+      console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
+    })
+    .catch(err => {
+      console.error("Error loading compatibility data:", err);
+    });
+
+  // ---------- helper functions & logic below ----------
+
 
     // Utility: normalize text for comparison (remove spaces, dashes, upper-case)
     function normalize(str) {
@@ -910,4 +867,5 @@
   </script>
 </body>
 </html>
+
 
