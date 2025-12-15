@@ -434,12 +434,14 @@
         </p>
 
         <div class="buttons-row">
-          <button class="btn-primary" type="button" onclick="runCompatibilityCheck()">
-            ⚡ Check Compatibility
-          </button>
-          <button class="btn-secondary" type="button" onclick="resetChecker()">
-            Reset
-          </button>
+          <button class="btn-primary" type="button" onclick="openEmailDraft('results')">
+  ✉️ Email Compatibility Result
+</button>
+
+<button class="btn-secondary" type="button" onclick="openEmailDraft('consultation')">
+  📍 Book a GenerLink Consultation
+</button>
+
         </div>
       </section>
 
@@ -878,11 +880,15 @@ function populateManufacturerDatalist(data) {
 
     window._lastCheck = null;
   }
+function openEmailDraft(source) {
+  source = source || "results";
 
-  function openEmailDraft() {
     const check = window._lastCheck;
     const name  = document.getElementById("custName").value.trim();
     const email = document.getElementById("custEmail").value.trim();
+  const phone = (document.getElementById("custPhone")?.value || "").trim();
+const address = (document.getElementById("installAddress")?.value || "").trim();
+
     <label>
   <span style="font-size:0.85rem;">Phone number (required for consultation)</span>
   <input type="text" id="custPhone" placeholder="e.g. (705) 286-1003" />
@@ -902,10 +908,26 @@ function populateManufacturerDatalist(data) {
       alert("Please enter your email address so we can include it in the message.");
       return;
     }
+if (source === "consultation") {
+  if (!phone) {
+    alert("Please enter your phone number so we can contact you to book the consultation.");
+    return;
+  }
+  if (!address) {
+    alert("Please enter the full installation address so we can confirm service area and prepare properly.");
+    return;
+  }
+}
+const subject = encodeURIComponent(
+  source === "consultation"
+    ? "GenerLink Consultation Request – Compatibility Check (Generator Solutions)"
+    : "GenerLink Compatibility Check – Generator Solutions"
+);
 
-    const subject = encodeURIComponent("GenerLink Compatibility Check – Generator Solutions");
 
     const lines = [];
+  lines.push(`• CTA used: ${source === "consultation" ? "Book a GenerLink Consultation" : "Email Compatibility Result"}`);
+
     lines.push("Hello Generator Solutions Team,");
     lines.push("");
     lines.push("Here are my GenerLink compatibility results from your online checker:");
@@ -932,6 +954,9 @@ function populateManufacturerDatalist(data) {
     lines.push("My contact details:");
     lines.push(`• Name: ${name || "(not provided)"}`);
     lines.push(`• Email: ${email}`);
+  lines.push(`• Phone: ${phone || "(not provided)"}`);
+lines.push(`• Installation address: ${address || "(not provided)"}`);
+
     lines.push("");
     lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
     lines.push("• If this generator is compatible, and");
@@ -952,6 +977,7 @@ function populateManufacturerDatalist(data) {
 
 </body>
 </html>
+
 
 
 
