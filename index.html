@@ -883,6 +883,16 @@ function populateManufacturerDatalist(data) {
     const check = window._lastCheck;
     const name  = document.getElementById("custName").value.trim();
     const email = document.getElementById("custEmail").value.trim();
+    <label>
+  <span style="font-size:0.85rem;">Phone number (required for consultation)</span>
+  <input type="text" id="custPhone" placeholder="e.g. (705) 286-1003" />
+</label>
+
+<label>
+  <span style="font-size:0.85rem;">Installation address (required for consultation)</span>
+  <input type="text" id="installAddress" placeholder="Street, City, Province, Postal Code" />
+</label>
+
 
     if (!check) {
       alert("Please run the compatibility check first so we can include your results.");
@@ -942,6 +952,7 @@ function populateManufacturerDatalist(data) {
 
 </body>
 </html>
+
 
 
 
