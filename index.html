@@ -496,14 +496,16 @@
             </label>
           </div>
 
-          <div class="buttons-row">
-            <button class="btn-primary" type="button" onclick="openEmailDraft()">
-              ✉️ Email Compatibility Result
-            </button>
-            <button class="btn-secondary" type="button" onclick="bookGenerLinkConsult()">
-              📍 Book a GenerLink Consultation
-            </button>
-          </div>
+         <div class="buttons-row">
+  <button class="btn-primary" type="button" onclick="openEmailDraft('results')">
+    ✉️ Email Compatibility Result
+  </button>
+
+  <button class="btn-secondary" type="button" onclick="openEmailDraft('consultation')">
+    📍 Book a GenerLink Consultation
+  </button>
+</div>
+
 
           <p class="notice">
             This uses your device’s email app to create a draft addressed to
@@ -979,6 +981,7 @@ lines.push(`• Installation address: ${address || "(not provided)"}`);
 
 </body>
 </html>
+
 
 
 
