@@ -434,13 +434,15 @@
         </p>
 
         <div class="buttons-row">
-          <button class="btn-primary" type="button" onclick="openEmailDraft('results')">
-  ✉️ Email Compatibility Result
-</button>
+  <button class="btn-primary" type="button" onclick="runCompatibilityCheck()">
+    ⚡ Check Compatibility
+  </button>
 
-<button class="btn-secondary" type="button" onclick="openEmailDraft('consultation')">
-  📍 Book a GenerLink Consultation
-</button>
+  <button class="btn-secondary" type="button" onclick="resetChecker()">
+    Reset
+  </button>
+</div>
+
 
         </div>
       </section>
@@ -977,6 +979,7 @@ lines.push(`• Installation address: ${address || "(not provided)"}`);
 
 </body>
 </html>
+
 
 
 
