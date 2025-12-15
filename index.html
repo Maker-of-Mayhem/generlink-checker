@@ -387,13 +387,12 @@
             Revision / Version
             <input type="text" id="genRev" placeholder="e.g. REV 00, REV 01, A, B" />
           </label>
-          <label>
-            Generator Type
-            <select id="genType">
-              <option value="portable">Portable generator</option>
-              <option value="standby">Home standby generator</option>
-            </select>
-          </label>
+         <label>
+  Generator Type
+  <input type="text" value="Portable generator" disabled />
+  <input type="hidden" id="genType" value="portable" />
+</label>
+
         </div>
 
         <div class="section-title">Approximate Output</div>
@@ -937,6 +936,7 @@ function populateManufacturerDatalist(data) {
 
 </body>
 </html>
+
 
 
 
