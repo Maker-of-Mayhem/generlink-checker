@@ -371,18 +371,14 @@
 
         <div class="section-title">Brand & Model</div>
         <div class="grid-2">
-         <label>
+        <label>
   Manufacturer
-  <input type="text" id="genBrand" placeholder="e.g. Generac, Honda, Firman, Champion" />
-  <div class="hint">Type the manufacturer name exactly as shown on the generator nameplate.</div>
+  <input type="text" id="genBrand" list="manufacturerList"
+         placeholder="Start typing… (e.g. Generac, Honda, Firman)" autocomplete="off" />
+  <datalist id="manufacturerList"></datalist>
+  <div class="hint">Start typing and select from the list. Use the exact manufacturer name from the nameplate when possible.</div>
 </label>
 
-          </label>
-          <label>
-            Model
-            <input type="text" id="genModel" placeholder="e.g. GP8000E, P08008, EU7000is" />
-            <div class="hint">Type the exact model from the nameplate if possible.</div>
-          </label>
         </div>
 
         <div class="section-title">Revision / Version (optional)</div>
@@ -521,14 +517,12 @@
     COMPAT_DATA = data;
     compatLoaded = true;
     console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
-    const el = document.getElementById("dataStatus");
-    if (el) el.textContent = `Compatibility database loaded: ${COMPAT_DATA.length.toLocaleString()} models`;
+    populateManufacturerDatalist(COMPAT_DATA);
   })
   .catch(err => {
     console.error("Error loading compatibility data:", err);
-    const el = document.getElementById("dataStatus");
-    if (el) el.textContent = "Error loading compatibility database. Please refresh or try again.";
   });
+
 
 
   // Normalize helper
@@ -539,6 +533,30 @@
       .toUpperCase()
       .replace(/[\s\-_\/]+/g, "");
   }
+function populateManufacturerDatalist(data) {
+  const dl = document.getElementById("manufacturerList");
+  if (!dl) return;
+
+  // collect unique manufacturers
+  const set = new Set();
+  data.forEach(row => {
+    if (row && row.manufacturer) {
+      const m = row.manufacturer.toString().trim();
+      if (m) set.add(m);
+    }
+  });
+
+  // sort alphabetically
+  const manufacturers = Array.from(set).sort((a, b) => a.localeCompare(b));
+
+  // populate datalist
+  dl.innerHTML = "";
+  manufacturers.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    dl.appendChild(opt);
+  });
+}
 
   function describeWattageChoice(val) {
     switch (val) {
@@ -919,6 +937,7 @@
 
 </body>
 </html>
+
 
 
 
