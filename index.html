@@ -369,17 +369,23 @@
           The more accurately it’s entered, the better the compatibility match.
         </p>
 
-        <div class="section-title">Brand & Model</div>
-        <div class="grid-2">
-        <label>
-  Manufacturer
-  <input type="text" id="genBrand" list="manufacturerList"
-         placeholder="Start typing… (e.g. Generac, Honda, Firman)" autocomplete="off" />
-  <datalist id="manufacturerList"></datalist>
-  <div class="hint">Start typing and select from the list. Use the exact manufacturer name from the nameplate when possible.</div>
-</label>
+      <div class="section-title">Manufacturer & Model</div>
+<div class="grid-2">
+  <label>
+    Manufacturer
+    <input type="text" id="genBrand" list="manufacturerList"
+           placeholder="Start typing… (e.g. Generac, Honda, Firman)" autocomplete="off" />
+    <datalist id="manufacturerList"></datalist>
+    <div class="hint">Start typing and select from the list (from our reference database).</div>
+  </label>
 
-        </div>
+  <label>
+    Generator Model Number
+    <input type="text" id="genModel" placeholder="e.g. GP8000E, P08008, EU7000is" />
+    <div class="hint">Type the exact model from the generator nameplate.</div>
+  </label>
+</div>
+
 
         <div class="section-title">Revision / Version (optional)</div>
         <div class="grid-2">
@@ -936,6 +942,7 @@ function populateManufacturerDatalist(data) {
 
 </body>
 </html>
+
 
 
 
