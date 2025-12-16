@@ -958,8 +958,11 @@ const subject = encodeURIComponent(
     lines.push("My contact details:");
     lines.push(`• Name: ${name || "(not provided)"}`);
     lines.push(`• Email: ${email}`);
-  lines.push(`• Phone: ${phone || "(not provided)"}`);
-lines.push(`• Installation address: ${address || "(not provided)"}`);
+  if (source === "consultation") {
+  lines.push(`• Phone: ${phone}`);
+  lines.push(`• Installation address: ${address}`);
+}
+
 
     lines.push("");
     lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
@@ -973,14 +976,11 @@ lines.push(`• Installation address: ${address || "(not provided)"}`);
     window.location.href = mailto;
   }
 
-  function bookGenerLinkConsult() {
-    // For now, reuse the same detailed email flow
-    openEmailDraft();
-  }
 </script>
 
 </body>
 </html>
+
 
 
 
