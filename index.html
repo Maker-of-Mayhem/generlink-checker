@@ -528,6 +528,7 @@
     compatLoaded = true;
     console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
     populateManufacturerDatalist(COMPAT_DATA);
+    console.log("Manufacturers populated ✅");
   })
   .catch(err => {
     console.error("Error loading compatibility data:", err);
@@ -980,6 +981,7 @@ lines.push(`• Installation address: ${address || "(not provided)"}`);
 
 </body>
 </html>
+
 
 
 
