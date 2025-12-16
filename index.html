@@ -4,948 +4,848 @@
   <meta charset="UTF-8" />
   <title>GenerLink Compatibility Checker – Generator Solutions</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root {
-      --midnight: #020921;
-      --accent-orange: #f58a1f;
-      --accent-blue: #245bb4;
-      --text-light: #f5f7ff;
-      --text-muted: #b6c2e3;
-      --card-bg: #050b1b;
-      --ok: #4ade80;
-      --warn: #facc15;
-      --bad: #f97373;
+    :root{
+      --midnight:#020921;
+      --card:#050b1b;
+      --text:#f5f7ff;
+      --muted:#b6c2e3;
+      --border: rgba(255,255,255,0.10);
+      --shadow: rgba(0,0,0,0.60);
+
+      --ok:#4ade80;
+      --warn:#facc15;
+      --bad:#f87171;
+
+      --cta1a:#fbbf24;
+      --cta1b:#f97316;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #0b1f4a 0, var(--midnight) 45%, #000 100%);
-      color: var(--text-light);
-      padding: 24px 16px 40px;
-      display: flex;
-      justify-content: center;
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, #0b1f4a 0, var(--midnight) 45%, #000 100%);
+      padding: 22px 16px 40px;
+      display:flex;
+      justify-content:center;
     }
 
-    .page-wrap {
-      width: 100%;
-      max-width: 1100px;
-    }
+    .wrap{width:100%;max-width:1100px}
 
-    header {
-      text-align: center;
-      margin-bottom: 24px;
+    header{
+      text-align:center;
+      margin-bottom: 18px;
     }
-
-    .brand {
-      margin-bottom: 12px;
+    .brand{
+      display:flex;
+      justify-content:center;
+      margin-bottom:10px;
     }
-
-    .brand img {
-      height: 70px;
-      width: auto;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
+    .brand img{
+      height:70px;
+      width:auto;
+      max-width: 92vw;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.70));
     }
-
-    h1 {
-      font-size: 1.9rem;
-      margin-bottom: 6px;
-    }
-
-    .tagline {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      max-width: 680px;
+    h1{font-size:1.85rem;margin-bottom:6px}
+    .tagline{
+      color: var(--muted);
+      font-size:0.95rem;
+      max-width: 760px;
       margin: 0 auto;
+      line-height:1.35;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
       gap: 20px;
-      margin-top: 26px;
+      margin-top: 20px;
+      align-items:start;
+    }
+    @media (max-width: 900px){
+      .layout{grid-template-columns: minmax(0,1fr)}
     }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .card {
-      background: radial-gradient(circle at top, #101935 0, var(--card-bg) 55%);
+    .card{
+      background: radial-gradient(circle at top, #101935 0, var(--card) 58%);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.05);
       padding: 18px 18px 22px;
-      box-shadow:
-        0 20px 50px rgba(0,0,0,0.65),
-        0 0 0 1px rgba(255,255,255,0.02);
+      box-shadow: 0 18px 50px var(--shadow);
     }
-
-    .card h2 {
-      font-size: 1.2rem;
-      margin-bottom: 6px;
-    }
-
-    .card-sub {
-      font-size: 0.9rem;
-      color: var(--text-muted);
+    .card h2{font-size:1.15rem;margin-bottom:6px}
+    .sub{
+      color: var(--muted);
+      font-size:0.9rem;
       margin-bottom: 14px;
+      line-height:1.35;
     }
 
-    .section-title {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
+    .section-title{
+      color: var(--muted);
+      font-size:0.82rem;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
       margin: 14px 0 6px;
     }
 
-    label {
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    select, input[type="text"], input[type="email"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(3,7,18,0.85);
-      color: var(--text-light);
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    select:focus, input[type="text"]:focus, input[type="email"]:focus {
-      border-color: var(--accent-orange);
-      box-shadow: 0 0 0 1px rgba(245,138,31,0.4);
-    }
-
-    .grid-2 {
-      display: grid;
+    .grid-2{
+      display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px 12px;
     }
-
-    @media (max-width: 640px) {
-      .grid-2 {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    @media (max-width: 640px){
+      .grid-2{grid-template-columns: minmax(0,1fr)}
     }
 
-    .hint {
+    label{display:block;font-size:0.9rem}
+    input[type="text"], input[type="email"], select, textarea{
+      width:100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(3,7,18,0.85);
+      color: var(--text);
+      outline:none;
+      font-size: 0.95rem;
+    }
+    textarea{min-height: 70px; resize: vertical;}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(245,158,11,0.85);
+      box-shadow: 0 0 0 1px rgba(245,158,11,0.35);
+    }
+    .hint{
+      color: var(--muted);
       font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 4px;
+      line-height:1.3;
     }
 
-    .pill-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .pill-toggle {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
+    .pill-group{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 7px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(15,23,42,0.9);
+      background: rgba(15,23,42,0.92);
       font-size: 0.86rem;
-      cursor: pointer;
-      user-select: none;
+      cursor:pointer;
+      user-select:none;
     }
-
-    .pill-toggle input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
+    .pill input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
     }
-
-    .pill-toggle span {
-      pointer-events: none;
-    }
-
-    .pill-toggle input:checked + span {
-      color: #020617;
-      font-weight: 600;
-    }
-
-    .pill-bg {
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
+    .pill span{pointer-events:none}
+    .pill .bg{
+      position:absolute;
+      inset:-1px;
+      border-radius:inherit;
       background: radial-gradient(circle at top, #fed7aa, #f97316);
-      opacity: 0;
-      transform: scale(0.9);
+      opacity:0;
+      transform: scale(0.92);
       transition: all 0.16s ease-out;
-      z-index: -1;
+      z-index:-1;
+    }
+    .pill input:checked ~ .bg{
+      opacity:1;
+      transform:scale(1);
+    }
+    .pill input:checked + span{
+      color:#020617;
+      font-weight:700;
     }
 
-    .pill-toggle input:checked ~ .pill-bg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .buttons-row {
-      margin-top: 18px;
-      display: flex;
-      flex-wrap: wrap;
+    .buttons{
+      display:flex;
+      flex-wrap:wrap;
       gap: 10px;
+      margin-top: 16px;
     }
-<p class="hint" id="dataStatus">Loading compatibility database…</p>
-
-    button {
-      border: none;
-      border-radius: 999px;
+    button{
+      border:none;
+      border-radius:999px;
       padding: 9px 16px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      font-size:0.95rem;
+      cursor:pointer;
+      font-weight: 700;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
     }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #fbbf24, #f97316);
-      color: #020617;
-      box-shadow:
-        0 0 20px rgba(248,250,252,0.25),
-        0 8px 25px rgba(0,0,0,0.9);
+    .primary{
+      background: linear-gradient(135deg, var(--cta1a), var(--cta1b));
+      color:#020617;
+      box-shadow: 0 0 20px rgba(248,250,252,0.18), 0 8px 25px rgba(0,0,0,0.85);
     }
-
-    .btn-secondary {
+    .secondary{
       background: rgba(15,23,42,0.95);
-      color: var(--text-light);
-      border: 1px solid rgba(148,163,184,0.4);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,0.45);
     }
+    .primary:hover{filter:brightness(1.05)}
+    .secondary:hover{border-color: rgba(245,158,11,0.9)}
 
-    .btn-primary:hover { filter: brightness(1.05); }
-    .btn-secondary:hover { border-color: var(--accent-orange); }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .result-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
       margin-bottom: 6px;
     }
-
-    .badge {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
+    .badge{
+      font-size:0.75rem;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
       padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      color: var(--text-muted);
+      border-radius:999px;
+      border: 1px solid rgba(148,163,184,0.55);
+      color: var(--muted);
+      white-space:nowrap;
     }
+    .ok{border-color: var(--ok); color: var(--ok);}
+    .warn{border-color: var(--warn); color: var(--warn);}
+    .bad{border-color: var(--bad); color: var(--bad);}
 
-    .badge-status-ok { border-color: var(--ok); color: var(--ok); }
-    .badge-status-warn { border-color: var(--warn); color: var(--warn); }
-    .badge-status-bad { border-color: var(--bad); color: var(--bad); }
-
-    .result-main {
-      font-size: 1.7rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+    .result-title{
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin: 6px 0 4px;
     }
-
-    .result-sub {
-      font-size: 0.95rem;
-      color: var(--text-muted);
+    .result-summary{
+      color: var(--muted);
+      line-height:1.35;
       margin-bottom: 10px;
     }
 
-    .tag-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .tag {
-      font-size: 0.78rem;
+    .tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    .tag{
+      font-size:0.78rem;
       padding: 4px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
+      border-radius:999px;
+      background: rgba(15,23,42,0.90);
       border: 1px solid rgba(148,163,184,0.5);
     }
+    .tag.ok{border-color: var(--ok); color: var(--ok);}
+    .tag.warn{border-color: var(--warn); color: var(--warn);}
+    .tag.bad{border-color: var(--bad); color: var(--bad);}
 
-    .tag.ok { border-color: var(--ok); color: var(--ok); }
-    .tag.warn { border-color: var(--warn); color: var(--warn); }
-    .tag.bad { border-color: var(--bad); color: var(--bad); }
-
-    .summary-list {
-      list-style: none;
+    ul.summary{
+      list-style:none;
+      color: var(--muted);
       font-size: 0.88rem;
-      color: var(--text-muted);
       margin: 8px 0 12px;
     }
+    ul.summary li{margin-bottom:4px}
 
-    .summary-list li { margin-bottom: 4px; }
-
-    .alt-box {
-      margin-top: 8px;
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: rgba(15,23,42,0.75);
-      font-size: 0.86rem;
-    }
-
-    .alt-box strong {
-      color: var(--accent-orange);
-    }
-
-    .legal-note {
+    .box{
       margin-top: 10px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(15,23,42,0.75);
+      border: 1px solid rgba(148,163,184,0.40);
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height:1.35;
+      display:none;
     }
+    .box strong{color: rgba(245,158,11,0.95)}
 
-    .email-section {
+    .divider{
       margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid rgba(148,163,184,0.35);
-      padding-top: 10px;
     }
 
-    .email-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-      gap: 8px 10px;
-      margin-bottom: 8px;
+    .legal{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.80rem;
+      line-height: 1.35;
     }
 
-    @media (max-width: 700px) {
-      .email-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    .statusline{
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
     }
-
-    .email-note {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .notice {
-      font-size: 0.8rem;
-      margin-top: 6px;
-      color: var(--text-muted);
-    }
+    .statusline strong{color: var(--text)}
   </style>
 </head>
+
 <body>
-  <div class="page-wrap">
+  <div class="wrap">
     <header>
       <div class="brand">
-        <!-- Replace logo.png with your actual logo file name if different -->
-        <img src="logo.png" alt="Generator Solutions Logo" />
+        <!-- If logo.png isn't present, page still works; you'll just see broken image.
+             Keep logo.png in the same folder as index.html, or remove this <img>. -->
+        <img src="./logo.png" alt="Generator Solutions Logo" onerror="this.style.display='none';" />
       </div>
       <h1>GenerLink Compatibility Checker</h1>
-      <p class="legal-note">
-  <strong>Disclaimer:</strong>
-  This tool is based on the most current GenerLink compatibility information available to us.
-  It is provided for reference <strong>ONLY</strong>.
-  Always consult with your local electrical authority and/or a licensed electrician to ensure that
-  <u><strong>YOUR</strong></u> portable generator is compatible with the GenerLink unit selected.
-</p>
-
+      <p class="tagline">
+        Enter your portable generator details and we’ll compare them to our current compatibility reference database.
+      </p>
     </header>
 
     <main class="layout">
-      <!-- LEFT: INPUTS -->
+      <!-- LEFT CARD -->
       <section class="card">
         <h2>Your Generator Details</h2>
-        <p class="card-sub">
-          Enter your generator information as it appears on the data plate.
-          The more accurately it’s entered, the better the compatibility match.
+        <p class="sub">
+          Use the manufacturer name and model number exactly as shown on the generator nameplate for best results.
         </p>
 
-      <div class="section-title">Manufacturer & Model</div>
-<div class="grid-2">
-  <label>
-    Manufacturer
-    <input type="text" id="genBrand" list="manufacturerList"
-           placeholder="Start typing… (e.g. Generac, Honda, Firman)" autocomplete="off" />
-    <datalist id="manufacturerList"></datalist>
-    <div class="hint">Start typing and select from the list (from our reference database).</div>
-  </label>
+        <div class="section-title">Manufacturer & Model</div>
+        <div class="grid-2">
+          <label>
+            Manufacturer
+            <input
+              type="text"
+              id="genBrand"
+              list="manufacturerList"
+              placeholder="Start typing… (e.g. Generac, Honda, Firman)"
+              autocomplete="off"
+            />
+            <datalist id="manufacturerList"></datalist>
+            <div class="hint">Auto-suggest comes from the loaded database.</div>
+          </label>
 
-  <label>
-    Generator Model Number
-    <input type="text" id="genModel" placeholder="e.g. GP8000E, P08008, EU7000is" />
-    <div class="hint">Type the exact model from the generator nameplate.</div>
-  </label>
-</div>
-
+          <label>
+            Generator Model Number
+            <input type="text" id="genModel" placeholder="e.g. GP8000E, P08008, EU7000is" autocomplete="off" />
+            <div class="hint">Type the exact model from the data plate.</div>
+          </label>
+        </div>
 
         <div class="section-title">Revision / Version (optional)</div>
         <div class="grid-2">
           <label>
             Revision / Version
-            <input type="text" id="genRev" placeholder="e.g. REV 00, REV 01, A, B" />
+            <input type="text" id="genRev" placeholder="e.g. REV 00, REV 01, A, B" autocomplete="off" />
           </label>
-         <label>
-  Generator Type
-  <input type="text" value="Portable generator" disabled />
-  <input type="hidden" id="genType" value="portable" />
-</label>
 
+          <label>
+            Generator Type
+            <input type="text" value="Portable generator" disabled />
+            <input type="hidden" id="genType" value="portable" />
+            <div class="hint">This tool is for portable generators (GenerLink use case).</div>
+          </label>
         </div>
 
         <div class="section-title">Approximate Output</div>
-        <div class="pill-group" id="wattageGroup">
-          <label class="pill-toggle">
+        <div class="pill-group" role="group" aria-label="Wattage">
+          <label class="pill">
             <input type="radio" name="watts" value="under5" />
             <span>Under 5 kW</span>
-            <div class="pill-bg"></div>
+            <div class="bg"></div>
           </label>
-          <label class="pill-toggle">
+          <label class="pill">
             <input type="radio" name="watts" value="5to8" checked />
             <span>5 – 8 kW</span>
-            <div class="pill-bg"></div>
+            <div class="bg"></div>
           </label>
-          <label class="pill-toggle">
+          <label class="pill">
             <input type="radio" name="watts" value="8to12" />
             <span>8 – 12 kW</span>
-            <div class="pill-bg"></div>
+            <div class="bg"></div>
           </label>
-          <label class="pill-toggle">
+          <label class="pill">
             <input type="radio" name="watts" value="12to15" />
             <span>12 – 15 kW</span>
-            <div class="pill-bg"></div>
+            <div class="bg"></div>
           </label>
-          <label class="pill-toggle">
+          <label class="pill">
             <input type="radio" name="watts" value="over15" />
             <span>15 kW +</span>
-            <div class="pill-bg"></div>
+            <div class="bg"></div>
           </label>
         </div>
-        <p class="hint">
-          If you’re not sure, use the running wattage from the data plate or user manual.
-        </p>
+        <div class="hint">If unsure, use the running watts from the manual or nameplate.</div>
 
-        <div class="buttons-row">
-          <button class="btn-primary" type="button" onclick="runCompatibilityCheck()">
+        <div class="buttons">
+          <button class="primary" type="button" onclick="runCompatibilityCheck()">
             ⚡ Check Compatibility
           </button>
-          <button class="btn-secondary" type="button" onclick="resetChecker()">
+          <button class="secondary" type="button" onclick="resetChecker()">
             Reset
           </button>
         </div>
+
+        <div class="statusline" id="dataStatus">
+          Loading compatibility database…
+        </div>
       </section>
 
-      <!-- RIGHT: RESULTS -->
+      <!-- RIGHT CARD -->
       <section class="card">
-        <div class="result-header">
+        <div class="result-head">
           <h2>Compatibility Result</h2>
           <span class="badge" id="statusBadge">Waiting for input…</span>
         </div>
 
-        <div id="resultTitle" class="result-main">No result yet</div>
-        <p id="resultSummary" class="result-sub">
-          Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.
+        <div class="result-title" id="resultTitle">No result yet</div>
+        <p class="result-summary" id="resultSummary">
+          Enter your generator details and click “Check Compatibility”.
         </p>
 
-        <div class="tag-pills" id="resultTags"></div>
+        <div class="tags" id="resultTags"></div>
 
-        <ul class="summary-list" id="summaryList">
-          <li>Brand: —</li>
+        <ul class="summary" id="summaryList">
+          <li>Manufacturer: —</li>
           <li>Model: —</li>
           <li>Revision: —</li>
-          <li>Generator type: —</li>
+          <li>Generator type: Portable generator</li>
           <li>Approximate output: —</li>
         </ul>
 
-        <div class="alt-box" id="altBox" style="display:none;">
+        <div class="box" id="nextStepsBox">
           <strong>Suggested next steps:</strong>
-          <div id="altText" style="margin-top:4px;"></div>
+          <div id="nextStepsText" style="margin-top:6px;"></div>
         </div>
 
-        <p class="legal-note">
-          This tool is for guidance only and is based on a partial internal reference.
-          Final compatibility must always be confirmed against the official GenerLink compatibility list and approved by your local utility and electrical authority.
+        <p class="legal">
+          <strong>Disclaimer:</strong>
+          This tool is based on the most current GenerLink compatibility information available to us.
+          It is provided for reference <strong>ONLY</strong>.
+          Always consult with your local electrical authority and/or a licensed electrician to ensure that
+          <u><strong>YOUR</strong></u> portable generator is compatible with the GenerLink unit selected.
         </p>
 
-        <div class="email-section">
-          <h3 style="font-size:1rem;margin-bottom:4px;">Email These Results</h3>
-          <p class="email-note">
-            Create an email with your compatibility result that you can send to yourself and to Generator Solutions.
+        <div class="divider" id="emailSection">
+          <h2 style="font-size:1.05rem;margin-bottom:6px;">Email These Results</h2>
+          <p class="sub" style="margin-bottom:10px;">
+            Create an email draft addressed to <strong>sales@generatorsolutions.ca</strong> with you on copy.
           </p>
 
-          <div class="email-grid">
+          <div class="grid-2">
             <label>
-              <span style="font-size:0.85rem;">Your name</span>
-              <input type="text" id="custName" placeholder="e.g. Jane Smith" />
+              Your name
+              <input type="text" id="custName" placeholder="e.g. Jane Smith" autocomplete="off" />
             </label>
             <label>
-              <span style="font-size:0.85rem;">Your email address</span>
-              <input type="email" id="custEmail" placeholder="you@example.com" />
+              Your email address
+              <input type="email" id="custEmail" placeholder="you@example.com" autocomplete="off" />
             </label>
           </div>
 
-          <div class="buttons-row">
-            <button class="btn-primary" type="button" onclick="openEmailDraft()">
+          <div class="grid-2" style="margin-top:10px;">
+            <label>
+              Phone number (required for consultation)
+              <input type="text" id="custPhone" placeholder="e.g. (705) 286-1003" autocomplete="off" />
+            </label>
+            <label>
+              Installation address (required for consultation)
+              <input type="text" id="installAddress" placeholder="Street, City, Province, Postal Code" autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="buttons">
+            <button class="primary" type="button" onclick="openEmailDraft('results')">
               ✉️ Email Compatibility Result
             </button>
-            <button class="btn-secondary" type="button" onclick="bookGenerLinkConsult()">
+            <button class="secondary" type="button" onclick="openEmailDraft('consultation')">
               📍 Book a GenerLink Consultation
             </button>
           </div>
 
-          <p class="notice">
-            This uses your device’s email app to create a draft addressed to
-            <strong>sales@generatorsolutions.ca</strong> with you on copy. You can review and send it from there.
-          </p>
+          <div class="hint">
+            “Consultation” requires phone + full address so we can confirm service area and prepare properly.
+          </div>
         </div>
       </section>
     </main>
   </div>
 
-<script>
-  // Global compatibility dataset – loaded from JSON file
-  let COMPAT_DATA = [];
-  let compatLoaded = false;
+  <script>
+    console.log("✅ Script loaded");
 
-  // Load JSON on page load
- fetch("generlink_compat_data.json")
-  .then(res => res.json())
-  .then(data => {
-    COMPAT_DATA = data;
-    compatLoaded = true;
-    console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
-    populateManufacturerDatalist(COMPAT_DATA);
-  })
-  .catch(err => {
-    console.error("Error loading compatibility data:", err);
-  });
+    // Global compatibility dataset – loaded from JSON file
+    let COMPAT_DATA = [];
+    let compatLoaded = false;
 
-
-
-  // Normalize helper
-  function normalize(str) {
-    return (str || "")
-      .toString()
-      .trim()
-      .toUpperCase()
-      .replace(/[\s\-_\/]+/g, "");
-  }
-function populateManufacturerDatalist(data) {
-  const dl = document.getElementById("manufacturerList");
-  if (!dl) return;
-
-  // collect unique manufacturers
-  const set = new Set();
-  data.forEach(row => {
-    if (row && row.manufacturer) {
-      const m = row.manufacturer.toString().trim();
-      if (m) set.add(m);
+    function normalize(str) {
+      return (str || "")
+        .toString()
+        .trim()
+        .toUpperCase()
+        .replace(/[\s\-_\/]+/g, "");
     }
-  });
 
-  // sort alphabetically
-  const manufacturers = Array.from(set).sort((a, b) => a.localeCompare(b));
-
-  // populate datalist
-  dl.innerHTML = "";
-  manufacturers.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m;
-    dl.appendChild(opt);
-  });
-}
-
-  function describeWattageChoice(val) {
-    switch (val) {
-      case "under5": return "Under 5 kW";
-      case "5to8":   return "5 – 8 kW";
-      case "8to12":  return "8 – 12 kW";
-      case "12to15": return "12 – 15 kW";
-      case "over15": return "15 kW +";
-      default:       return "Not specified";
+    function describeWattageChoice(val) {
+      switch (val) {
+        case "under5": return "Under 5 kW";
+        case "5to8": return "5 – 8 kW";
+        case "8to12": return "8 – 12 kW";
+        case "12to15": return "12 – 15 kW";
+        case "over15": return "15 kW +";
+        default: return "Not specified";
+      }
     }
-  }
 
-  function classifyDbWatts(wattsStr) {
-    if (!wattsStr) return "";
-    const n = parseInt(wattsStr, 10);
-    if (!n || isNaN(n)) return "";
-    if (n < 4000) return "Light-duty (under ~4 kW)";
-    if (n < 8000) return "Typical portable size for essential loads";
-    if (n < 12000) return "Mid-range output";
-    return "High-output portable (check service & cord sizing)";
-  }
+    function classifyDbWatts(wattsStr) {
+      const n = parseInt(wattsStr || "", 10);
+      if (!n || Number.isNaN(n)) return "";
+      if (n < 4000) return "Light-duty (under ~4 kW)";
+      if (n < 8000) return "Typical essential-load portable";
+      if (n < 12000) return "Mid-range output";
+      return "High-output portable (confirm cord & load plan)";
+    }
 
-  function findCompatibility(brand, model) {
-    const normBrand = normalize(brand);
-    const normModel = normalize(model);
+    function populateManufacturerDatalist(data) {
+      const dl = document.getElementById("manufacturerList");
+      if (!dl) return;
 
-    if (!COMPAT_DATA.length) {
+      const set = new Set();
+      data.forEach(row => {
+        if (row && row.manufacturer) {
+          const m = row.manufacturer.toString().trim();
+          if (m) set.add(m);
+        }
+      });
+
+      const manufacturers = Array.from(set).sort((a, b) => a.localeCompare(b));
+      dl.innerHTML = "";
+      manufacturers.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        dl.appendChild(opt);
+      });
+    }
+
+    function findInDatabase(manufacturer, model) {
+      const mfgNorm = normalize(manufacturer);
+      const modelNorm = normalize(model);
+
+      if (!mfgNorm || !modelNorm) return null;
+
+      // exact match first
+      for (const row of COMPAT_DATA) {
+        if (normalize(row.manufacturer) === mfgNorm && normalize(row.model) === modelNorm) {
+          return { row, confidence: "exact" };
+        }
+      }
+
+      // partial match (same manufacturer, model contains input)
+      for (const row of COMPAT_DATA) {
+        if (normalize(row.manufacturer) !== mfgNorm) continue;
+        const rm = normalize(row.model);
+        if (rm.includes(modelNorm) || modelNorm.includes(rm)) {
+          return { row, confidence: "partial" };
+        }
+      }
+
       return null;
     }
 
-    let candidates = COMPAT_DATA;
-
-    if (normBrand) {
-      candidates = candidates.filter(row => normalize(row.manufacturer) === normBrand);
+    function setBadge(text, cls) {
+      const b = document.getElementById("statusBadge");
+      b.textContent = text;
+      b.classList.remove("ok", "warn", "bad");
+      if (cls) b.classList.add(cls);
     }
 
-    let exactMatch = null;
-    let partialMatch = null;
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
 
-    candidates.forEach(row => {
-      const nm = normalize(row.model);
-      if (nm === normModel) {
-        exactMatch = row;
-      } else if (!partialMatch && (nm.includes(normModel) || normModel.includes(nm))) {
-        partialMatch = row;
+    function runCompatibilityCheck() {
+      // Always start fresh
+      window._lastCheck = null;
+
+      if (!compatLoaded) {
+        alert("Compatibility database is still loading. Please refresh and try again in a moment.");
+        return;
       }
-    });
 
-    if (exactMatch) {
-      return { ...exactMatch, confidence: "exact" };
-    }
-    if (partialMatch) {
-      return { ...partialMatch, confidence: "partial" };
-    }
+      const manufacturer = (document.getElementById("genBrand")?.value || "").trim();
+      const model = (document.getElementById("genModel")?.value || "").trim();
+      const rev = (document.getElementById("genRev")?.value || "").trim();
+      const wattsChoice = document.querySelector('input[name="watts"]:checked')?.value || "5to8";
 
-    return null;
-  }
-
-  function runCompatibilityCheck() {
-    if (!compatLoaded) {
-      alert("Compatibility data is still loading. Please wait a moment and try again.");
-      return;
-    }
-
-    const brand = document.getElementById("genBrand").value || "";
-    const model = document.getElementById("genModel").value || "";
-    const rev   = document.getElementById("genRev").value || "";
-    const type  = document.getElementById("genType").value || "portable";
-    const wattsRadio = document.querySelector('input[name="watts"]:checked');
-    const wattsChoice = wattsRadio ? wattsRadio.value : "";
-
-    if (!brand || !model) {
-      alert("Please enter at least the brand and model of your generator.");
-      return;
-    }
-
-    const dbResult = findCompatibility(brand, model);
-    let result;
-
-    if (dbResult) {
-      result = {
-        status: dbResult.status || "check",
-        plugType: dbResult.plug_type || "",
-        notes: dbResult.notes || "",
-        dbWatts: dbResult.wattage || "",
-        dbManufacturer: dbResult.manufacturer || brand,
-        dbModel: dbResult.model || model,
-        confidence: dbResult.confidence || "exact"
-      };
-    } else {
-      result = {
-        status: "unknown",
-        plugType: "",
-        notes: "This exact model does not appear in our current internal reference. It may still be compatible, but it must be checked against the latest official GenerLink list and your local utility’s requirements.",
-        dbWatts: "",
-        dbManufacturer: brand,
-        dbModel: model,
-        confidence: "none"
-      };
-    }
-
-    updateResults({
-      brand,
-      model,
-      rev,
-      type,
-      wattsChoice,
-      result
-    });
-  }
-
-  function updateResults({ brand, model, rev, type, wattsChoice, result }) {
-    const statusBadge   = document.getElementById("statusBadge");
-    const resultTitle   = document.getElementById("resultTitle");
-    const resultSummary = document.getElementById("resultSummary");
-    const resultTags    = document.getElementById("resultTags");
-    const summaryList   = document.getElementById("summaryList");
-    const altBox        = document.getElementById("altBox");
-    const altText       = document.getElementById("altText");
-
-    let statusText = "";
-    let statusBadgeClass = "";
-    let mainTitle = "";
-    let summary = "";
-
-    switch (result.status) {
-      case "yes":
-        statusText = "Compatible (guide only)";
-        statusBadgeClass = "badge-status-ok";
-        mainTitle = "Likely Compatible";
-        summary = result.notes || "This generator appears in our reference as compatible with GenerLink.";
-        break;
-      case "no":
-        statusText = "Not listed as compatible";
-        statusBadgeClass = "badge-status-bad";
-        mainTitle = "Not Listed as Compatible";
-        summary = result.notes || "This generator is not listed as compatible in our current reference.";
-        break;
-      case "check":
-        statusText = "Manual check recommended";
-        statusBadgeClass = "badge-status-warn";
-        mainTitle = "Requires Manual Review";
-        summary = result.notes || "Compatibility may depend on plug type, neutral bonding or local utility rules.";
-        break;
-      default:
-        statusText = "Not listed – needs manual review";
-        statusBadgeClass = "";
-        mainTitle = "Not Found in Reference";
-        summary = result.notes;
-    }
-
-    statusBadge.textContent = statusText;
-    statusBadge.classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
-    if (statusBadgeClass) statusBadge.classList.add(statusBadgeClass);
-
-    resultTitle.textContent = mainTitle;
-    resultSummary.textContent = summary;
-
-    // ---- Tags ----
-    resultTags.innerHTML = "";
-
-    const brandTag = document.createElement("span");
-    brandTag.className = "tag";
-    brandTag.textContent = `Brand: ${brand}`;
-    resultTags.appendChild(brandTag);
-
-    const modelTag = document.createElement("span");
-    modelTag.className = "tag";
-    modelTag.textContent = `Model: ${model}`;
-    resultTags.appendChild(modelTag);
-
-    if (rev) {
-      const revTag = document.createElement("span");
-      revTag.className = "tag";
-      revTag.textContent = `Revision: ${rev}`;
-      resultTags.appendChild(revTag);
-    }
-
-    const typeTag = document.createElement("span");
-    typeTag.className = "tag";
-    typeTag.textContent = type === "portable" ? "Portable generator" : "Home standby";
-    resultTags.appendChild(typeTag);
-
-    const wattsTag = document.createElement("span");
-    wattsTag.className = "tag";
-    wattsTag.textContent = `Approx. output (you): ${describeWattageChoice(wattsChoice)}`;
-    resultTags.appendChild(wattsTag);
-
-    // From DB: wattage class & plug type
-    const dbWattClass = classifyDbWatts(result.dbWatts);
-    if (dbWattClass) {
-      const dbWTag = document.createElement("span");
-      dbWTag.className = "tag";
-      dbWTag.textContent = `DB size class: ${dbWattClass}`;
-      resultTags.appendChild(dbWTag);
-    }
-
-    if (result.plugType) {
-      const plugTag = document.createElement("span");
-      plugTag.className = "tag ok";
-      plugTag.textContent = `Plug type: ${result.plugType}`;
-      resultTags.appendChild(plugTag);
-
-      if (result.plugType.includes("TT-30") && !result.plugType.includes("L14-30")) {
-        const warnTag = document.createElement("span");
-        warnTag.className = "tag warn";
-        warnTag.textContent = "TT-30 is 120V only – typically not suitable for GenerLink";
-        resultTags.appendChild(warnTag);
+      if (!manufacturer || !model) {
+        alert("Please enter both the manufacturer and model number.");
+        return;
       }
-    } else {
-      const plugWarn = document.createElement("span");
-      plugWarn.className = "tag warn";
-      plugWarn.textContent = "Plug type not specified – confirm outlet is 120/240V (e.g., L14-30)";
-      resultTags.appendChild(plugWarn);
+
+      const hit = findInDatabase(manufacturer, model);
+
+      // UI elements
+      const tags = document.getElementById("resultTags");
+      const list = document.getElementById("summaryList");
+      const stepsBox = document.getElementById("nextStepsBox");
+      const stepsText = document.getElementById("nextStepsText");
+
+      tags.innerHTML = "";
+      stepsBox.style.display = "none";
+      stepsText.innerHTML = "";
+
+      // helper tag
+      const addTag = (txt, cls) => {
+        const s = document.createElement("span");
+        s.className = "tag" + (cls ? (" " + cls) : "");
+        s.textContent = txt;
+        tags.appendChild(s);
+      };
+
+      // summary list
+      const items = [];
+      items.push(`Manufacturer: ${manufacturer}`);
+      items.push(`Model: ${model}`);
+      items.push(`Revision: ${rev || "Not specified"}`);
+      items.push(`Generator type: Portable generator`);
+      items.push(`Approximate output (your selection): ${describeWattageChoice(wattsChoice)}`);
+
+      // default result state
+      let mainTitle = "Not Found in Reference";
+      let summary = "This exact model does not appear in our current internal reference. It may still be compatible, but it must be verified against the latest official GenerLink list and your local utility’s requirements.";
+      let statusLabel = "Not listed – manual review";
+      let statusClass = "";
+      let plugType = "";
+      let dbWatts = "";
+      let dbWattClass = "";
+      let statusCode = "unknown";
+
+      if (hit) {
+        const row = hit.row;
+        statusCode = row.status || "check";
+        plugType = row.plug_type || "";
+        dbWatts = row.wattage || "";
+        dbWattClass = classifyDbWatts(dbWatts);
+
+        // Map status codes
+        if (statusCode === "yes") {
+          mainTitle = "Likely Compatible";
+          summary = row.notes || "This generator appears in our reference as compatible with GenerLink.";
+          statusLabel = "Compatible (guide only)";
+          statusClass = "ok";
+        } else if (statusCode === "no") {
+          mainTitle = "Not Listed as Compatible";
+          summary = row.notes || "This generator is not listed as compatible in our current reference.";
+          statusLabel = "Not listed as compatible";
+          statusClass = "bad";
+        } else {
+          mainTitle = "Requires Manual Review";
+          summary = row.notes || "Compatibility may depend on plug type, neutral bonding, or local utility rules.";
+          statusLabel = "Manual check recommended";
+          statusClass = "warn";
+        }
+
+        addTag(`Confidence: ${hit.confidence}`, hit.confidence === "exact" ? "ok" : "warn");
+      }
+
+      // Badge + main text
+      setBadge(statusLabel, statusClass);
+      setText("resultTitle", mainTitle);
+      setText("resultSummary", summary);
+
+      // Tags
+      addTag(`Manufacturer: ${manufacturer}`);
+      addTag(`Model: ${model}`);
+      if (rev) addTag(`Revision: ${rev}`);
+      addTag(`Portable generator`, "ok");
+      addTag(`Output (you): ${describeWattageChoice(wattsChoice)}`);
+
+      if (dbWatts) addTag(`Reference watts: ${dbWatts} W`, "ok");
+      if (dbWattClass) addTag(`Load class: ${dbWattClass}`, "ok");
+
+      if (plugType) {
+        addTag(`Plug: ${plugType}`, "ok");
+        if (plugType.includes("TT-30") && !plugType.includes("L14-30")) {
+          addTag("TT-30 is typically 120V only — confirm suitability", "warn");
+        }
+      } else {
+        addTag("Plug type not specified — confirm 120/240V outlet (e.g., L14-30)", "warn");
+      }
+
+      if (statusCode === "no") addTag("Not recommended (based on reference)", "bad");
+      if (statusCode === "check" || statusCode === "unknown") addTag("Manual verification required", "warn");
+
+      // Summary list render
+      list.innerHTML = "";
+      items.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        list.appendChild(li);
+      });
+
+      // Next steps box
+      const steps = [];
+      if (statusCode === "yes") {
+        steps.push("• Confirm against the latest official GenerLink compatibility list.");
+        steps.push("• Ensure correct 120/240V outlet (often L14-30) and properly rated cord.");
+        steps.push("• We recommend a quick review with our team before purchase/installation.");
+      } else if (statusCode === "no") {
+        steps.push("• This model is not listed as compatible in our current reference.");
+        steps.push("• Contact Generator Solutions to review compatible generator options and GenerLink sizing.");
+      } else {
+        steps.push("• This model requires manual compatibility confirmation.");
+        steps.push("• Please provide photos of the data plate and outlet panel if available.");
+        steps.push("• We’ll verify against the official list and local utility rules.");
+      }
+
+      stepsBox.style.display = "block";
+      stepsText.innerHTML = steps.join("<br>");
+
+      // Store for email
+      window._lastCheck = {
+        statusLabel,
+        mainTitle,
+        summary,
+        manufacturer,
+        model,
+        rev,
+        wattsChoiceLabel: describeWattageChoice(wattsChoice),
+        dbWatts,
+        plugType,
+        dbWattClass,
+        statusCode
+      };
     }
 
-    if (result.status === "no") {
-      const badTag = document.createElement("span");
-      badTag.className = "tag bad";
-      badTag.textContent = "Not recommended for GenerLink based on current reference";
-      resultTags.appendChild(badTag);
-    } else if (result.status === "check" || result.status === "unknown") {
-      const warnTag = document.createElement("span");
-      warnTag.className = "tag warn";
-      warnTag.textContent = "Manual compatibility check required";
-      resultTags.appendChild(warnTag);
+    function resetChecker() {
+      document.getElementById("genBrand").value = "";
+      document.getElementById("genModel").value = "";
+      document.getElementById("genRev").value = "";
+
+      document.querySelectorAll('input[name="watts"]').forEach(r => {
+        r.checked = (r.value === "5to8");
+      });
+
+      setBadge("Waiting for input…", "");
+      setText("resultTitle", "No result yet");
+      setText("resultSummary", "Enter your generator details and click “Check Compatibility”.");
+
+      document.getElementById("resultTags").innerHTML = "";
+      document.getElementById("summaryList").innerHTML = `
+        <li>Manufacturer: —</li>
+        <li>Model: —</li>
+        <li>Revision: —</li>
+        <li>Generator type: Portable generator</li>
+        <li>Approximate output: —</li>
+      `;
+
+      document.getElementById("nextStepsBox").style.display = "none";
+      document.getElementById("nextStepsText").innerHTML = "";
+
+      window._lastCheck = null;
     }
 
-    // ---- Summary list ----
-    const items = [];
-    items.push(`Brand: ${brand || "—"}`);
-    items.push(`Model: ${model || "—"}`);
-    items.push(`Revision: ${rev || "Not specified"}`);
-    items.push(`Generator type: ${type === "portable" ? "Portable generator" : "Home standby"}`);
-    items.push(`Approximate output (your selection): ${describeWattageChoice(wattsChoice)}`);
-    if (result.dbWatts) {
-      items.push(`Approximate output (reference): ${result.dbWatts} W`);
+    function openEmailDraft(source) {
+      source = source || "results";
+
+      const check = window._lastCheck;
+      if (!check) {
+        alert("Please run the compatibility check first so we can include your results.");
+        return;
+      }
+
+      const name = (document.getElementById("custName")?.value || "").trim();
+      const email = (document.getElementById("custEmail")?.value || "").trim();
+      const phone = (document.getElementById("custPhone")?.value || "").trim();
+      const address = (document.getElementById("installAddress")?.value || "").trim();
+
+      if (!email) {
+        alert("Please enter your email address so we can include it in the message.");
+        return;
+      }
+
+      if (source === "consultation") {
+        if (!phone) {
+          alert("Please enter your phone number so we can contact you to book the consultation.");
+          return;
+        }
+        if (!address) {
+          alert("Please enter the full installation address so we can confirm service area and prepare properly.");
+          return;
+        }
+      }
+
+      const subject = encodeURIComponent(
+        source === "consultation"
+          ? "GenerLink Consultation Request – Compatibility Check (Generator Solutions)"
+          : "GenerLink Compatibility Check – Generator Solutions"
+      );
+
+      const lines = [];
+      lines.push("Hello Generator Solutions Team,");
+      lines.push("");
+      lines.push("Here are my GenerLink compatibility results from your online checker:");
+      lines.push("");
+      lines.push(`• CTA used: ${source === "consultation" ? "Book a GenerLink Consultation" : "Email Compatibility Result"}`);
+      lines.push(`• Status: ${check.mainTitle} (${check.statusLabel})`);
+      lines.push(`• Summary: ${check.summary}`);
+      lines.push("");
+      lines.push("Generator details:");
+      lines.push(`• Manufacturer: ${check.manufacturer}`);
+      lines.push(`• Model: ${check.model}`);
+      lines.push(`• Revision: ${check.rev || "(not specified)"}`);
+      lines.push(`• Generator type: Portable generator`);
+      lines.push(`• Approximate output (my selection): ${check.wattsChoiceLabel}`);
+      if (check.dbWatts) lines.push(`• Approximate output (reference): ${check.dbWatts} W`);
+      if (check.plugType) lines.push(`• Plug type (reference): ${check.plugType}`);
+      if (check.dbWattClass) lines.push(`• Load class: ${check.dbWattClass}`);
+
+      lines.push("");
+      lines.push("My contact details:");
+      lines.push(`• Name: ${name || "(not provided)"}`);
+      lines.push(`• Email: ${email}`);
+
+      if (source === "consultation") {
+        lines.push(`• Phone: ${phone}`);
+        lines.push(`• Installation address: ${address}`);
+      }
+
+      lines.push("");
+      lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
+      lines.push("• If this generator is compatible, and");
+      lines.push("• Any recommendations or next steps.");
+      if (source === "consultation") {
+        lines.push("");
+        lines.push("I would also like to book a GenerLink consultation / installation assessment.");
+      }
+      lines.push("");
+      lines.push("Thank you!");
+
+      const body = encodeURIComponent(lines.join("\n"));
+      const mailto = `mailto:sales@generatorsolutions.ca?cc=${encodeURIComponent(email)}&subject=${subject}&body=${body}`;
+      window.location.href = mailto;
     }
 
-    summaryList.innerHTML = "";
-    items.forEach(txt => {
-      const li = document.createElement("li");
-      li.textContent = txt;
-      summaryList.appendChild(li);
+    // Load DB after DOM exists so datalist is always present
+    window.addEventListener("DOMContentLoaded", () => {
+      const status = document.getElementById("dataStatus");
+
+      fetch("./generlink_compat_data.json")
+        .then(res => {
+          if (!res.ok) throw new Error(`JSON load failed: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          COMPAT_DATA = Array.isArray(data) ? data : [];
+          compatLoaded = true;
+          populateManufacturerDatalist(COMPAT_DATA);
+
+          if (status) {
+            status.innerHTML = `Database loaded: <strong>${COMPAT_DATA.length.toLocaleString()}</strong> models ✅`;
+          }
+        })
+        .catch(err => {
+          console.error("❌ Error loading compatibility data:", err);
+          if (status) {
+            status.innerHTML = `Database error: <strong>could not load</strong> ❌ (check file path/name)`;
+          }
+        });
     });
-
-    // ---- Next steps text ----
-    let altLines = [];
-
-    if (result.status === "yes") {
-      altLines.push("• Confirm this generator against the latest official GenerLink compatibility list.");
-      altLines.push("• Ensure it has a 120/240V outlet (often L14-30) and a properly rated cord.");
-      altLines.push("• We recommend a quick review with our team before purchase or installation.");
-    } else if (result.status === "no") {
-      altLines.push("• This generator is not listed as compatible in our current reference.");
-      altLines.push("• Contact Generator Solutions to review compatible generator options and GenerLink sizing for your home.");
-    } else {
-      altLines.push("• This model needs a manual compatibility check.");
-      altLines.push("• Please include clear photos of the data plate and outlets when you contact us.");
-      altLines.push("• We’ll verify it against the official GenerLink list and your local utility’s requirements.");
-    }
-
-    if (altLines.length) {
-      altBox.style.display = "block";
-      altText.innerHTML = altLines.join("<br>");
-    } else {
-      altBox.style.display = "none";
-      altText.innerHTML = "";
-    }
-
-    // Store for email
-    window._lastCheck = {
-      statusLabel: statusText,
-      mainTitle,
-      summary,
-      brand,
-      model,
-      rev,
-      type: type === "portable" ? "Portable generator" : "Home standby",
-      wattsChoiceLabel: describeWattageChoice(wattsChoice),
-      dbWatts: result.dbWatts || "",
-      plugType: result.plugType || "",
-      dbWattClass,
-      statusCode: result.status
-    };
-  }
-
-  function resetChecker() {
-    document.getElementById("genBrand").value = "";
-    document.getElementById("genModel").value = "";
-    document.getElementById("genRev").value = "";
-    document.getElementById("genType").value = "portable";
-
-    document.querySelectorAll('input[name="watts"]').forEach((r, idx) => {
-      r.checked = (r.value === "5to8");
-    });
-
-    document.getElementById("statusBadge").textContent = "Waiting for input…";
-    document.getElementById("statusBadge").classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
-
-    document.getElementById("resultTitle").textContent = "No result yet";
-    document.getElementById("resultSummary").textContent =
-      "Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.";
-    document.getElementById("resultTags").innerHTML = "";
-    document.getElementById("summaryList").innerHTML = `
-      <li>Brand: —</li>
-      <li>Model: —</li>
-      <li>Revision: —</li>
-      <li>Generator type: —</li>
-      <li>Approximate output: —</li>
-    `;
-    document.getElementById("altBox").style.display = "none";
-    document.getElementById("altText").innerHTML = "";
-
-    window._lastCheck = null;
-  }
-
-  function openEmailDraft() {
-    const check = window._lastCheck;
-    const name  = document.getElementById("custName").value.trim();
-    const email = document.getElementById("custEmail").value.trim();
-
-    if (!check) {
-      alert("Please run the compatibility check first so we can include your results.");
-      return;
-    }
-    if (!email) {
-      alert("Please enter your email address so we can include it in the message.");
-      return;
-    }
-
-    const subject = encodeURIComponent("GenerLink Compatibility Check – Generator Solutions");
-
-    const lines = [];
-    lines.push("Hello Generator Solutions Team,");
-    lines.push("");
-    lines.push("Here are my GenerLink compatibility results from your online checker:");
-    lines.push("");
-    lines.push(`• Status: ${check.mainTitle} (${check.statusLabel})`);
-    lines.push(`• Summary: ${check.summary}`);
-    lines.push("");
-    lines.push("Generator details:");
-    lines.push(`• Brand: ${check.brand}`);
-    lines.push(`• Model: ${check.model}`);
-    lines.push(`• Revision: ${check.rev || "(not specified)"}`);
-    lines.push(`• Type: ${check.type}`);
-    lines.push(`• Approximate output (my selection): ${check.wattsChoiceLabel}`);
-    if (check.dbWatts) {
-      lines.push(`• Approximate output (reference): ${check.dbWatts} W`);
-    }
-    if (check.plugType) {
-      lines.push(`• Plug type (reference): ${check.plugType}`);
-    }
-    if (check.dbWattClass) {
-      lines.push(`• Load class: ${check.dbWattClass}`);
-    }
-    lines.push("");
-    lines.push("My contact details:");
-    lines.push(`• Name: ${name || "(not provided)"}`);
-    lines.push(`• Email: ${email}`);
-    lines.push("");
-    lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
-    lines.push("• If this generator is compatible, and");
-    lines.push("• Any recommendations or next steps.");
-    lines.push("");
-    lines.push("Thank you!");
-
-    const body = encodeURIComponent(lines.join("\n"));
-    const mailto = `mailto:sales@generatorsolutions.ca?cc=${encodeURIComponent(email)}&subject=${subject}&body=${body}`;
-    window.location.href = mailto;
-  }
-
-  function bookGenerLinkConsult() {
-    // For now, reuse the same detailed email flow
-    openEmailDraft();
-  }
-</script>
-
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
