@@ -865,7 +865,7 @@ function populateManufacturerDatalist(data) {
       r.checked = (r.value === "5to8");
     });
 
-    document.getElementById("statusBadge").textContent = "Waiting for input…";
+    document.getElementById("statusBadge").textContent = "Waiting for input. . .";
     document.getElementById("statusBadge").classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
 
     document.getElementById("resultTitle").textContent = "No result yet";
@@ -981,6 +981,7 @@ lines.push(`• Installation address: ${address || "(not provided)"}`);
 
 </body>
 </html>
+
 
 
 
