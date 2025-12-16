@@ -200,6 +200,7 @@
       flex-wrap: wrap;
       gap: 10px;
     }
+<p class="hint" id="dataStatus">Loading compatibility database…</p>
 
     button {
       border: none;
@@ -514,16 +515,21 @@
   let compatLoaded = false;
 
   // Load JSON on page load
-  fetch("generlink_compat_data.json")
-    .then(res => res.json())
-    .then(data => {
-      COMPAT_DATA = data;
-      compatLoaded = true;
-      console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
-    })
-    .catch(err => {
-      console.error("Error loading compatibility data:", err);
-    });
+ fetch("generlink_compat_data.json")
+  .then(res => res.json())
+  .then(data => {
+    COMPAT_DATA = data;
+    compatLoaded = true;
+    console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
+    const el = document.getElementById("dataStatus");
+    if (el) el.textContent = `Compatibility database loaded: ${COMPAT_DATA.length.toLocaleString()} models`;
+  })
+  .catch(err => {
+    console.error("Error loading compatibility data:", err);
+    const el = document.getElementById("dataStatus");
+    if (el) el.textContent = "Error loading compatibility database. Please refresh or try again.";
+  });
+
 
   // Normalize helper
   function normalize(str) {
@@ -913,6 +919,7 @@
 
 </body>
 </html>
+
 
 
 
