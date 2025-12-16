@@ -513,401 +513,411 @@
     </main>
   </div>
 
-  <script>
-    // --------------------------------------------------------------------
-    // SAMPLE compatibility dataset
-    // Replace/expand this with your real internal/official GenerLink list.
-    // --------------------------------------------------------------------
-    const COMPAT_DATA = [
-      {
-        brand: "Generac",
-        models: ["GP6500", "GP7500E", "GP8000E", "GP8000E-2"],
-        status: "compatible",
-        notes: "Listed as compatible when equipped with a 120/240V 30A twist-lock (L14-30) outlet.",
-        outlet: "L14-30 120/240V, 30A",
-        recommended: [],
-        flags: ["portable", "aircooled"]
-      },
-      {
-        brand: "Generac",
-        models: ["XG8000E"],
-        status: "compatible",
-        notes: "Compatible with GenerLink when wired using the 30A 120/240V outlet and properly sized cord.",
-        outlet: "L14-30 120/240V, 30A",
-        recommended: [],
-        flags: ["portable", "aircooled"]
-      },
-      {
-        brand: "Firman",
-        models: ["P08003", "P08004", "T08072"],
-        status: "compatible",
-        notes: "Certain Firman 8 kW models are compatible; confirm exact model and revision against the latest GenerLink chart.",
-        outlet: "30A 120/240V",
-        recommended: [],
-        flags: ["portable"]
-      },
-      {
-        brand: "Firman",
-        models: ["P08008"],
-        status: "not",
-        notes: "This specific model / revision is not listed as compatible in our current reference.",
-        outlet: null,
-        recommended: ["Firman T08072", "Generac GP8000E"],
-        flags: ["portable"]
-      },
-      {
-        brand: "Honda",
-        models: ["EU7000IS", "EU7000", "EU6500IS"],
-        status: "conditional",
-        notes: "Inverter units may be compatible when equipped with a 120/240V outlet and used within the rated capacity. Must be confirmed against official list.",
-        outlet: "30A 120/240V (if equipped)",
-        recommended: [],
-        flags: ["portable", "inverter"]
-      },
-      {
-        brand: "Champion",
-        models: ["100520", "100519"],
-        status: "compatible",
-        notes: "Select Champion dual-fuel 8.75–10 kW units appear on the compatibility list; confirm by exact model number.",
-        outlet: "L14-30 120/240V",
-        recommended: [],
-        flags: ["portable", "dualfuel"]
-      }
-      // Add more entries as needed…
-    ];
+<script>
+  // Global compatibility dataset – loaded from JSON file
+  let COMPAT_DATA = [];
+  let compatLoaded = false;
 
-    // Utility: normalize text for comparison (remove spaces, dashes, upper-case)
-    function normalize(str) {
-      return (str || "").toString().trim().toUpperCase().replace(/[\s\-_/]+/g, "");
+  // Load JSON on page load
+  fetch("generlink_compat_data.json")
+    .then(res => res.json())
+    .then(data => {
+      COMPAT_DATA = data;
+      compatLoaded = true;
+      console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
+    })
+    .catch(err => {
+      console.error("Error loading compatibility data:", err);
+    });
+
+  // Normalize helper
+  function normalize(str) {
+    return (str || "")
+      .toString()
+      .trim()
+      .toUpperCase()
+      .replace(/[\s\-_\/]+/g, "");
+  }
+
+  function describeWattageChoice(val) {
+    switch (val) {
+      case "under5": return "Under 5 kW";
+      case "5to8":   return "5 – 8 kW";
+      case "8to12":  return "8 – 12 kW";
+      case "12to15": return "12 – 15 kW";
+      case "over15": return "15 kW +";
+      default:       return "Not specified";
+    }
+  }
+
+  function classifyDbWatts(wattsStr) {
+    if (!wattsStr) return "";
+    const n = parseInt(wattsStr, 10);
+    if (!n || isNaN(n)) return "";
+    if (n < 4000) return "Light-duty (under ~4 kW)";
+    if (n < 8000) return "Typical portable size for essential loads";
+    if (n < 12000) return "Mid-range output";
+    return "High-output portable (check service & cord sizing)";
+  }
+
+  function findCompatibility(brand, model) {
+    const normBrand = normalize(brand);
+    const normModel = normalize(model);
+
+    if (!COMPAT_DATA.length) {
+      return null;
     }
 
-    function describeWattage(val) {
-      switch (val) {
-        case "under5": return "Under 5 kW";
-        case "5to8": return "5 – 8 kW";
-        case "8to12": return "8 – 12 kW";
-        case "12to15": return "12 – 15 kW";
-        case "over15": return "15 kW +";
-        default: return "Not specified";
-      }
+    let candidates = COMPAT_DATA;
+
+    if (normBrand) {
+      candidates = candidates.filter(row => normalize(row.manufacturer) === normBrand);
     }
 
-    function findCompatibility(brand, model, rev, type, watts) {
-      const normBrand = normalize(brand);
-      const normModel = normalize(model);
+    let exactMatch = null;
+    let partialMatch = null;
 
-      let bestMatch = null;
-
-      // Exact match (brand + model) within dataset
-      COMPAT_DATA.forEach(entry => {
-        if (normalize(entry.brand) !== normBrand) return;
-
-        entry.models.forEach(m => {
-          if (normalize(m) === normModel) {
-            bestMatch = {
-              ...entry,
-              matchedModel: m,
-              confidence: "exact"
-            };
-          }
-        });
-      });
-
-      // If no exact match, try partial model match for same brand
-      if (!bestMatch && normModel) {
-        COMPAT_DATA.forEach(entry => {
-          if (normalize(entry.brand) !== normBrand) return;
-
-          entry.models.forEach(m => {
-            if (normalize(m).includes(normModel) || normModel.includes(normalize(m))) {
-              if (!bestMatch) {
-                bestMatch = {
-                  ...entry,
-                  matchedModel: m,
-                  confidence: "partial"
-                };
-              }
-            }
-          });
-        });
+    candidates.forEach(row => {
+      const nm = normalize(row.model);
+      if (nm === normModel) {
+        exactMatch = row;
+      } else if (!partialMatch && (nm.includes(normModel) || normModel.includes(nm))) {
+        partialMatch = row;
       }
+    });
 
-      if (bestMatch) {
-        return bestMatch;
-      }
+    if (exactMatch) {
+      return { ...exactMatch, confidence: "exact" };
+    }
+    if (partialMatch) {
+      return { ...partialMatch, confidence: "partial" };
+    }
 
-      // Nothing in dataset: unknown / not listed
-      return {
-        brand,
-        models: [],
+    return null;
+  }
+
+  function runCompatibilityCheck() {
+    if (!compatLoaded) {
+      alert("Compatibility data is still loading. Please wait a moment and try again.");
+      return;
+    }
+
+    const brand = document.getElementById("genBrand").value || "";
+    const model = document.getElementById("genModel").value || "";
+    const rev   = document.getElementById("genRev").value || "";
+    const type  = document.getElementById("genType").value || "portable";
+    const wattsRadio = document.querySelector('input[name="watts"]:checked');
+    const wattsChoice = wattsRadio ? wattsRadio.value : "";
+
+    if (!brand || !model) {
+      alert("Please enter at least the brand and model of your generator.");
+      return;
+    }
+
+    const dbResult = findCompatibility(brand, model);
+    let result;
+
+    if (dbResult) {
+      result = {
+        status: dbResult.status || "check",
+        plugType: dbResult.plug_type || "",
+        notes: dbResult.notes || "",
+        dbWatts: dbResult.wattage || "",
+        dbManufacturer: dbResult.manufacturer || brand,
+        dbModel: dbResult.model || model,
+        confidence: dbResult.confidence || "exact"
+      };
+    } else {
+      result = {
         status: "unknown",
-        notes: "This exact model does not appear in our current internal reference. It may still be compatible, but it needs to be checked against the latest official GenerLink compatibility list.",
-        outlet: null,
-        recommended: [],
-        flags: [type],
+        plugType: "",
+        notes: "This exact model does not appear in our current internal reference. It may still be compatible, but it must be checked against the latest official GenerLink list and your local utility’s requirements.",
+        dbWatts: "",
+        dbManufacturer: brand,
+        dbModel: model,
         confidence: "none"
       };
     }
 
-    function runCompatibilityCheck() {
-      const brand = document.getElementById("genBrand").value || "";
-      const model = document.getElementById("genModel").value || "";
-      const rev = document.getElementById("genRev").value || "";
-      const type = document.getElementById("genType").value || "portable";
-      const wattsRadio = document.querySelector('input[name="watts"]:checked');
-      const watts = wattsRadio ? wattsRadio.value : "";
+    updateResults({
+      brand,
+      model,
+      rev,
+      type,
+      wattsChoice,
+      result
+    });
+  }
 
-      if (!brand || !model) {
-        alert("Please enter at least the brand and model of your generator.");
-        return;
-      }
+  function updateResults({ brand, model, rev, type, wattsChoice, result }) {
+    const statusBadge   = document.getElementById("statusBadge");
+    const resultTitle   = document.getElementById("resultTitle");
+    const resultSummary = document.getElementById("resultSummary");
+    const resultTags    = document.getElementById("resultTags");
+    const summaryList   = document.getElementById("summaryList");
+    const altBox        = document.getElementById("altBox");
+    const altText       = document.getElementById("altText");
 
-      const result = findCompatibility(brand, model, rev, type, watts);
-      updateResults({ brand, model, rev, type, watts, result });
+    let statusText = "";
+    let statusBadgeClass = "";
+    let mainTitle = "";
+    let summary = "";
+
+    switch (result.status) {
+      case "yes":
+        statusText = "Compatible (guide only)";
+        statusBadgeClass = "badge-status-ok";
+        mainTitle = "Likely Compatible";
+        summary = result.notes || "This generator appears in our reference as compatible with GenerLink.";
+        break;
+      case "no":
+        statusText = "Not listed as compatible";
+        statusBadgeClass = "badge-status-bad";
+        mainTitle = "Not Listed as Compatible";
+        summary = result.notes || "This generator is not listed as compatible in our current reference.";
+        break;
+      case "check":
+        statusText = "Manual check recommended";
+        statusBadgeClass = "badge-status-warn";
+        mainTitle = "Requires Manual Review";
+        summary = result.notes || "Compatibility may depend on plug type, neutral bonding or local utility rules.";
+        break;
+      default:
+        statusText = "Not listed – needs manual review";
+        statusBadgeClass = "";
+        mainTitle = "Not Found in Reference";
+        summary = result.notes;
     }
 
-    function updateResults({ brand, model, rev, type, watts, result }) {
-      const statusBadge = document.getElementById("statusBadge");
-      const resultTitle = document.getElementById("resultTitle");
-      const resultSummary = document.getElementById("resultSummary");
-      const resultTags = document.getElementById("resultTags");
-      const summaryList = document.getElementById("summaryList");
-      const altBox = document.getElementById("altBox");
-      const altText = document.getElementById("altText");
+    statusBadge.textContent = statusText;
+    statusBadge.classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
+    if (statusBadgeClass) statusBadge.classList.add(statusBadgeClass);
 
-      let statusText = "";
-      let statusBadgeClass = "";
-      let mainTitle = "";
-      let summary = "";
+    resultTitle.textContent = mainTitle;
+    resultSummary.textContent = summary;
 
-      switch (result.status) {
-        case "compatible":
-          statusText = "Compatible (guide only)";
-          statusBadgeClass = "badge-status-ok";
-          mainTitle = "Likely Compatible";
-          summary = result.notes || "This generator appears on our internal compatibility reference as compatible with GenerLink.";
-          break;
-        case "conditional":
-          statusText = "Conditionally compatible";
-          statusBadgeClass = "badge-status-warn";
-          mainTitle = "Conditionally Compatible";
-          summary = result.notes || "Compatibility may depend on the exact outlet configuration and load. Confirm against the official GenerLink list.";
-          break;
-        case "not":
-          statusText = "Not compatible / not supported";
-          statusBadgeClass = "badge-status-bad";
-          mainTitle = "Not Listed as Compatible";
-          summary = result.notes || "This generator is not listed as compatible in our reference.";
-          break;
-        default:
-          statusText = "Not listed – needs manual review";
-          statusBadgeClass = "";
-          mainTitle = "Not Found in Reference";
-          summary = result.notes;
-      }
+    // ---- Tags ----
+    resultTags.innerHTML = "";
 
-      statusBadge.textContent = statusText;
-      statusBadge.classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
-      if (statusBadgeClass) statusBadge.classList.add(statusBadgeClass);
+    const brandTag = document.createElement("span");
+    brandTag.className = "tag";
+    brandTag.textContent = `Brand: ${brand}`;
+    resultTags.appendChild(brandTag);
 
-      resultTitle.textContent = mainTitle;
-      resultSummary.textContent = summary;
+    const modelTag = document.createElement("span");
+    modelTag.className = "tag";
+    modelTag.textContent = `Model: ${model}`;
+    resultTags.appendChild(modelTag);
 
-      // Tags
-      resultTags.innerHTML = "";
+    if (rev) {
+      const revTag = document.createElement("span");
+      revTag.className = "tag";
+      revTag.textContent = `Revision: ${rev}`;
+      resultTags.appendChild(revTag);
+    }
 
-      const brandTag = document.createElement("span");
-      brandTag.className = "tag";
-      brandTag.textContent = `Brand: ${brand}`;
-      resultTags.appendChild(brandTag);
+    const typeTag = document.createElement("span");
+    typeTag.className = "tag";
+    typeTag.textContent = type === "portable" ? "Portable generator" : "Home standby";
+    resultTags.appendChild(typeTag);
 
-      const modelTag = document.createElement("span");
-      modelTag.className = "tag";
-      modelTag.textContent = `Model: ${model}`;
-      resultTags.appendChild(modelTag);
+    const wattsTag = document.createElement("span");
+    wattsTag.className = "tag";
+    wattsTag.textContent = `Approx. output (you): ${describeWattageChoice(wattsChoice)}`;
+    resultTags.appendChild(wattsTag);
 
-      if (rev) {
-        const revTag = document.createElement("span");
-        revTag.className = "tag";
-        revTag.textContent = `Revision: ${rev}`;
-        resultTags.appendChild(revTag);
-      }
+    // From DB: wattage class & plug type
+    const dbWattClass = classifyDbWatts(result.dbWatts);
+    if (dbWattClass) {
+      const dbWTag = document.createElement("span");
+      dbWTag.className = "tag";
+      dbWTag.textContent = `DB size class: ${dbWattClass}`;
+      resultTags.appendChild(dbWTag);
+    }
 
-      const typeTag = document.createElement("span");
-      typeTag.className = "tag";
-      typeTag.textContent = type === "portable" ? "Portable generator" : "Home standby";
-      resultTags.appendChild(typeTag);
+    if (result.plugType) {
+      const plugTag = document.createElement("span");
+      plugTag.className = "tag ok";
+      plugTag.textContent = `Plug type: ${result.plugType}`;
+      resultTags.appendChild(plugTag);
 
-      const wattTag = document.createElement("span");
-      wattTag.className = "tag";
-      wattTag.textContent = `Approx. output: ${describeWattage(watts)}`;
-      resultTags.appendChild(wattTag);
-
-      if (result.outlet) {
-        const outletTag = document.createElement("span");
-        outletTag.className = "tag ok";
-        outletTag.textContent = `Typical outlet: ${result.outlet}`;
-        resultTags.appendChild(outletTag);
-      }
-
-      if (result.status === "not") {
-        const warnTag = document.createElement("span");
-        warnTag.className = "tag bad";
-        warnTag.textContent = "Not recommended for GenerLink";
-        resultTags.appendChild(warnTag);
-      } else if (result.status === "unknown") {
+      if (result.plugType.includes("TT-30") && !result.plugType.includes("L14-30")) {
         const warnTag = document.createElement("span");
         warnTag.className = "tag warn";
-        warnTag.textContent = "Manual compatibility check required";
+        warnTag.textContent = "TT-30 is 120V only – typically not suitable for GenerLink";
         resultTags.appendChild(warnTag);
       }
-
-      // Summary list
-      const items = [];
-      items.push(`Brand: ${brand || "—"}`);
-      items.push(`Model: ${model || "—"}`);
-      items.push(`Revision: ${rev || "Not specified"}`);
-      items.push(`Generator type: ${type === "portable" ? "Portable generator" : "Home standby"}`);
-      items.push(`Approximate output: ${describeWattage(watts)}`);
-
-      summaryList.innerHTML = "";
-      items.forEach(txt => {
-        const li = document.createElement("li");
-        li.textContent = txt;
-        summaryList.appendChild(li);
-      });
-
-      // Alternative suggestions / next steps text
-      let altLines = [];
-
-      if (result.status === "compatible" || result.status === "conditional") {
-        altLines.push("• Confirm against the current official GenerLink compatibility list.");
-        altLines.push("• Ensure you have the correct 120/240V outlet (often L14-30) and a properly rated cord.");
-        altLines.push("• We recommend a quick review with our team before purchasing or installing.");
-      } else if (result.status === "not") {
-        altLines.push("• This generator is not listed as compatible in our reference.");
-        if (result.recommended && result.recommended.length) {
-          altLines.push("• Suggested alternatives or compatible series:");
-          result.recommended.forEach(r => altLines.push(`  - ${r}`));
-        }
-        altLines.push("• Contact Generator Solutions to review compatible generator options for your home and GenerLink.");
-      } else {
-        altLines.push("• This model is not appearing in our current reference.");
-        altLines.push("• Please send us a clear photo of the data plate and outlets, or include full model and revision in your email.");
-        altLines.push("• We’ll verify it against the latest official GenerLink list and your utility’s requirements.");
-      }
-
-      if (altLines.length) {
-        altBox.style.display = "block";
-        altText.innerHTML = altLines.join("<br>");
-      } else {
-        altBox.style.display = "none";
-        altText.innerHTML = "";
-      }
-
-      // Store latest check for email use
-      window._lastCheck = {
-        statusText,
-        mainTitle,
-        summary,
-        brand,
-        model,
-        rev,
-        type,
-        wattsLabel: describeWattage(watts),
-        outlet: result.outlet || "Not specified",
-        recommended: result.recommended || [],
-        rawStatus: result.status
-      };
+    } else {
+      const plugWarn = document.createElement("span");
+      plugWarn.className = "tag warn";
+      plugWarn.textContent = "Plug type not specified – confirm outlet is 120/240V (e.g., L14-30)";
+      resultTags.appendChild(plugWarn);
     }
 
-    function resetChecker() {
-      document.getElementById("genBrand").value = "";
-      document.getElementById("genModel").value = "";
-      document.getElementById("genRev").value = "";
-      document.getElementById("genType").value = "portable";
-
-      document.querySelectorAll('input[name="watts"]').forEach((r, idx) => {
-        r.checked = idx === 1; // default 5–8 kW
-      });
-
-      document.getElementById("statusBadge").textContent = "Waiting for input…";
-      document.getElementById("statusBadge").classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
-
-      document.getElementById("resultTitle").textContent = "No result yet";
-      document.getElementById("resultSummary").textContent =
-        "Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.";
-      document.getElementById("resultTags").innerHTML = "";
-      document.getElementById("summaryList").innerHTML = `
-        <li>Brand: —</li>
-        <li>Model: —</li>
-        <li>Revision: —</li>
-        <li>Generator type: —</li>
-        <li>Approximate output: —</li>
-      `;
-      document.getElementById("altBox").style.display = "none";
-      document.getElementById("altText").innerHTML = "";
-
-      window._lastCheck = null;
+    if (result.status === "no") {
+      const badTag = document.createElement("span");
+      badTag.className = "tag bad";
+      badTag.textContent = "Not recommended for GenerLink based on current reference";
+      resultTags.appendChild(badTag);
+    } else if (result.status === "check" || result.status === "unknown") {
+      const warnTag = document.createElement("span");
+      warnTag.className = "tag warn";
+      warnTag.textContent = "Manual compatibility check required";
+      resultTags.appendChild(warnTag);
     }
 
-    function openEmailDraft() {
-      const check = window._lastCheck;
-      const name = document.getElementById("custName").value.trim();
-      const email = document.getElementById("custEmail").value.trim();
-
-      if (!check) {
-        alert("Please run the compatibility check first so we can include your results.");
-        return;
-      }
-      if (!email) {
-        alert("Please enter your email address so we can include it in the message.");
-        return;
-      }
-
-      const subject = encodeURIComponent("GenerLink Compatibility Check – Generator Solutions");
-
-      const lines = [];
-      lines.push("Hello Generator Solutions Team,");
-      lines.push("");
-      lines.push("Here are my GenerLink compatibility results from your online checker:");
-      lines.push("");
-      lines.push(`• Status: ${check.mainTitle} (${check.statusText})`);
-      lines.push(`• Summary: ${check.summary}`);
-      lines.push("");
-      lines.push("Generator details:");
-      lines.push(`• Brand: ${check.brand}`);
-      lines.push(`• Model: ${check.model}`);
-      lines.push(`• Revision: ${check.rev || "(not specified)"}`);
-      lines.push(`• Type: ${check.type === "portable" ? "Portable generator" : "Home standby"}`);
-      lines.push(`• Approximate output: ${check.wattsLabel}`);
-      lines.push(`• Typical outlet (if applicable): ${check.outlet}`);
-      if (check.recommended && check.recommended.length) {
-        lines.push("");
-        lines.push("Suggested alternatives / compatible options (from tool):");
-        check.recommended.forEach(r => lines.push(`• ${r}`));
-      }
-      lines.push("");
-      lines.push("My contact details:");
-      lines.push(`• Name: ${name || "(not provided)"}`);
-      lines.push(`• Email: ${email}`);
-      lines.push("");
-      lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
-      lines.push("• If this generator is compatible, and");
-      lines.push("• Any recommendations or next steps.");
-      lines.push("");
-      lines.push("Thank you!");
-      const body = encodeURIComponent(lines.join("\n"));
-
-      const mailto = `mailto:sales@generatorsolutions.ca?cc=${encodeURIComponent(email)}&subject=${subject}&body=${body}`;
-      window.location.href = mailto;
+    // ---- Summary list ----
+    const items = [];
+    items.push(`Brand: ${brand || "—"}`);
+    items.push(`Model: ${model || "—"}`);
+    items.push(`Revision: ${rev || "Not specified"}`);
+    items.push(`Generator type: ${type === "portable" ? "Portable generator" : "Home standby"}`);
+    items.push(`Approximate output (your selection): ${describeWattageChoice(wattsChoice)}`);
+    if (result.dbWatts) {
+      items.push(`Approximate output (reference): ${result.dbWatts} W`);
     }
 
-    function bookGenerLinkConsult() {
-      // For now, reuse the same detailed email flow as "Email Compatibility Result"
-      openEmailDraft();
+    summaryList.innerHTML = "";
+    items.forEach(txt => {
+      const li = document.createElement("li");
+      li.textContent = txt;
+      summaryList.appendChild(li);
+    });
+
+    // ---- Next steps text ----
+    let altLines = [];
+
+    if (result.status === "yes") {
+      altLines.push("• Confirm this generator against the latest official GenerLink compatibility list.");
+      altLines.push("• Ensure it has a 120/240V outlet (often L14-30) and a properly rated cord.");
+      altLines.push("• We recommend a quick review with our team before purchase or installation.");
+    } else if (result.status === "no") {
+      altLines.push("• This generator is not listed as compatible in our current reference.");
+      altLines.push("• Contact Generator Solutions to review compatible generator options and GenerLink sizing for your home.");
+    } else {
+      altLines.push("• This model needs a manual compatibility check.");
+      altLines.push("• Please include clear photos of the data plate and outlets when you contact us.");
+      altLines.push("• We’ll verify it against the official GenerLink list and your local utility’s requirements.");
     }
-  </script>
+
+    if (altLines.length) {
+      altBox.style.display = "block";
+      altText.innerHTML = altLines.join("<br>");
+    } else {
+      altBox.style.display = "none";
+      altText.innerHTML = "";
+    }
+
+    // Store for email
+    window._lastCheck = {
+      statusLabel: statusText,
+      mainTitle,
+      summary,
+      brand,
+      model,
+      rev,
+      type: type === "portable" ? "Portable generator" : "Home standby",
+      wattsChoiceLabel: describeWattageChoice(wattsChoice),
+      dbWatts: result.dbWatts || "",
+      plugType: result.plugType || "",
+      dbWattClass,
+      statusCode: result.status
+    };
+  }
+
+  function resetChecker() {
+    document.getElementById("genBrand").value = "";
+    document.getElementById("genModel").value = "";
+    document.getElementById("genRev").value = "";
+    document.getElementById("genType").value = "portable";
+
+    document.querySelectorAll('input[name="watts"]').forEach((r, idx) => {
+      r.checked = (r.value === "5to8");
+    });
+
+    document.getElementById("statusBadge").textContent = "Waiting for input…";
+    document.getElementById("statusBadge").classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
+
+    document.getElementById("resultTitle").textContent = "No result yet";
+    document.getElementById("resultSummary").textContent =
+      "Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.";
+    document.getElementById("resultTags").innerHTML = "";
+    document.getElementById("summaryList").innerHTML = `
+      <li>Brand: —</li>
+      <li>Model: —</li>
+      <li>Revision: —</li>
+      <li>Generator type: —</li>
+      <li>Approximate output: —</li>
+    `;
+    document.getElementById("altBox").style.display = "none";
+    document.getElementById("altText").innerHTML = "";
+
+    window._lastCheck = null;
+  }
+
+ function openEmailDraft(source) {
+  source = source || "results";
+
+  const check = window._lastCheck;
+  const name  = document.getElementById("custName").value.trim();
+  const email = document.getElementById("custEmail").value.trim();
+  const phone = (document.getElementById("custPhone")?.value || "").trim();
+  const address = (document.getElementById("installAddress")?.value || "").trim();
+
+
+    if (!check) {
+      alert("Please run the compatibility check first so we can include your results.");
+      return;
+    }
+    if (!email) {
+      alert("Please enter your email address so we can include it in the message.");
+      return;
+    }
+
+    const subject = encodeURIComponent("GenerLink Compatibility Check – Generator Solutions");
+
+    const lines = [];
+    lines.push("Hello Generator Solutions Team,");
+    lines.push("");
+    lines.push("Here are my GenerLink compatibility results from your online checker:");
+    lines.push("");
+    lines.push(`• Status: ${check.mainTitle} (${check.statusLabel})`);
+    lines.push(`• Summary: ${check.summary}`);
+    lines.push("");
+    lines.push("Generator details:");
+    lines.push(`• Brand: ${check.brand}`);
+    lines.push(`• Model: ${check.model}`);
+    lines.push(`• Revision: ${check.rev || "(not specified)"}`);
+    lines.push(`• Type: ${check.type}`);
+    lines.push(`• Approximate output (my selection): ${check.wattsChoiceLabel}`);
+    if (check.dbWatts) {
+      lines.push(`• Approximate output (reference): ${check.dbWatts} W`);
+    }
+    if (check.plugType) {
+      lines.push(`• Plug type (reference): ${check.plugType}`);
+    }
+    if (check.dbWattClass) {
+      lines.push(`• Load class: ${check.dbWattClass}`);
+    }
+    lines.push("");
+    lines.push("My contact details:");
+    lines.push(`• Name: ${name || "(not provided)"}`);
+    lines.push(`• Email: ${email}`);
+    lines.push("");
+    lines.push("Please review this information against the official GenerLink compatibility list and my local utility's requirements, and let me know:");
+    lines.push("• If this generator is compatible, and");
+    lines.push("• Any recommendations or next steps.");
+    lines.push("");
+    lines.push("Thank you!");
+
+    const body = encodeURIComponent(lines.join("\n"));
+    const mailto = `mailto:sales@generatorsolutions.ca?cc=${encodeURIComponent(email)}&subject=${subject}&body=${body}`;
+    window.location.href = mailto;
+  }
+
+</script>
+
 </body>
 </html>
+
 
