@@ -548,7 +548,6 @@ function populateManufacturerDatalist(data) {
   const dl = document.getElementById("manufacturerList");
   if (!dl) return;
 
-  // collect unique manufacturers
   const set = new Set();
   data.forEach(row => {
     if (row && row.manufacturer) {
@@ -557,10 +556,8 @@ function populateManufacturerDatalist(data) {
     }
   });
 
-  // sort alphabetically
   const manufacturers = Array.from(set).sort((a, b) => a.localeCompare(b));
 
-  // populate datalist
   dl.innerHTML = "";
   manufacturers.forEach(m => {
     const opt = document.createElement("option");
@@ -568,6 +565,7 @@ function populateManufacturerDatalist(data) {
     dl.appendChild(opt);
   });
 }
+
 
   function describeWattageChoice(val) {
     switch (val) {
@@ -980,6 +978,7 @@ const subject = encodeURIComponent(
 
 </body>
 </html>
+
 
 
 
