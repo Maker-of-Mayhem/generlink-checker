@@ -521,7 +521,8 @@ let COMPAT_DATA = [];
 let compatLoaded = false;
 
 window.addEventListener("DOMContentLoaded", () => {
-  fetch("generlink_compat_data.json")
+fetch("./generlink_compat_data.json")
+
     .then(res => {
       if (!res.ok) throw new Error(`JSON load failed: ${res.status}`);
       return res.json();
@@ -1001,6 +1002,7 @@ const subject = encodeURIComponent(
 
 </body>
 </html>
+
 
 
 
