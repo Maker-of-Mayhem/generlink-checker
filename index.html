@@ -375,14 +375,15 @@
   <label>
     Manufacturer
     <input type="text" id="genBrand" list="manufacturerList"
-           placeholder="Start typing… (e.g. Generac, Honda, Firman)" autocomplete="off" />
-    <datalist id="manufacturerList"></datalist>
-    <div class="hint">Start typing and select from the list (from our reference database).</div>
-  </label>
+       placeholder="Start typing… (e.g. Generac, Honda, Firman)"
+       autocomplete="off" />
 
-  <label>
-    Generator Model Number
-    <input type="text" id="genModel" placeholder="e.g. GP8000E, P08008, EU7000is" />
+<datalist id="manufacturerList"></datalist>
+
+<input type="text" id="genModel"
+       placeholder="e.g. GP8000E, P08008, EU7000is"
+       autocomplete="off" />
+
     <div class="hint">Type the exact model from the generator nameplate.</div>
   </label>
 </div>
@@ -433,17 +434,16 @@
           If you’re not sure, use the running wattage from the data plate or user manual.
         </p>
 
-        <div class="buttons-row">
- <button class="btn-primary" type="button" onclick="alert('Button click works'); runCompatibilityCheck();">
-  ⚡ Check Compatibility
-</button>
+   <div class="buttons-row">
+  <button class="btn-primary" type="button" onclick="runCompatibilityCheck()">
+    ⚡ Check Compatibility
+  </button>
 
-
-<button class="btn-secondary" type="button" onclick="resetChecker()">
-  Reset
-</button>
-
-</div>  
+  <button class="btn-secondary" type="button" onclick="resetChecker()">
+    Reset
+  </button>
+</div>
+ 
       </section>
 
       <!-- RIGHT: RESULTS -->
@@ -516,23 +516,26 @@
   </div>
 
 <script>
-  // Global compatibility dataset – loaded from JSON file
-  let COMPAT_DATA = [];
-  let compatLoaded = false;
+ // Global compatibility dataset – loaded from JSON file
+let COMPAT_DATA = [];
+let compatLoaded = false;
 
-  // Load JSON on page load
- fetch("generlink_compat_data.json")
-  .then(res => res.json())
-  .then(data => {
-    COMPAT_DATA = data;
-    compatLoaded = true;
-    console.log("GenerLink compatibility data loaded:", COMPAT_DATA.length, "entries");
-    populateManufacturerDatalist(COMPAT_DATA);
-    console.log("Manufacturers populated ✅");
-  })
-  .catch(err => {
-    console.error("Error loading compatibility data:", err);
-  });
+window.addEventListener("DOMContentLoaded", () => {
+  fetch("generlink_compat_data.json")
+    .then(res => {
+      if (!res.ok) throw new Error(`JSON load failed: ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      COMPAT_DATA = data;
+      compatLoaded = true;
+      console.log("✅ GenerLink DB loaded:", COMPAT_DATA.length, "entries");
+      populateManufacturerDatalist(COMPAT_DATA);
+    })
+    .catch(err => {
+      console.error("❌ Error loading compatibility data:", err);
+    });
+});
 
 
 
@@ -854,34 +857,54 @@ function populateManufacturerDatalist(data) {
   }
 
   function resetChecker() {
-    document.getElementById("genBrand").value = "";
-    document.getElementById("genModel").value = "";
-    document.getElementById("genRev").value = "";
-    document.getElementById("genType").value = "portable";
+  const byId = (id) => document.getElementById(id);
 
-    document.querySelectorAll('input[name="watts"]').forEach((r, idx) => {
-      r.checked = (r.value === "5to8");
-    });
+  // Clear inputs safely
+  const brand = byId("genBrand");
+  const model = byId("genModel");
+  const rev   = byId("genRev");
+  const type  = byId("genType");
 
-    document.getElementById("statusBadge").textContent = "Waiting for input. . .";
-    document.getElementById("statusBadge").classList.remove("badge-status-ok", "badge-status-warn", "badge-status-bad");
+  if (brand) brand.value = "";
+  if (model) model.value = "";
+  if (rev) rev.value = "";
+  if (type) type.value = "portable";
 
-    document.getElementById("resultTitle").textContent = "No result yet";
-    document.getElementById("resultSummary").textContent =
-      "Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.";
-    document.getElementById("resultTags").innerHTML = "";
-    document.getElementById("summaryList").innerHTML = `
-      <li>Brand: —</li>
-      <li>Model: —</li>
-      <li>Revision: —</li>
-      <li>Generator type: —</li>
-      <li>Approximate output: —</li>
-    `;
-    document.getElementById("altBox").style.display = "none";
-    document.getElementById("altText").innerHTML = "";
+  // Reset wattage radios (default 5–8 kW)
+  document.querySelectorAll('input[name="watts"]').forEach(r => {
+    r.checked = (r.value === "5to8");
+  });
 
-    window._lastCheck = null;
+  // Reset result UI (IDs must exist in your HTML)
+  const statusBadge = byId("statusBadge");
+  const resultTitle = byId("resultTitle");
+  const resultSummary = byId("resultSummary");
+  const resultTags = byId("resultTags");
+  const summaryList = byId("summaryList");
+  const altBox = byId("altBox");
+  const altText = byId("altText");
+
+  if (statusBadge) {
+    statusBadge.textContent = "Waiting for input…";
+    statusBadge.classList.remove("badge-status-ok","badge-status-warn","badge-status-bad");
   }
+  if (resultTitle) resultTitle.textContent = "No result yet";
+  if (resultSummary) resultSummary.textContent =
+    "Enter your generator details on the left and click “Check Compatibility” to see if it appears in our reference list.";
+  if (resultTags) resultTags.innerHTML = "";
+  if (summaryList) summaryList.innerHTML = `
+    <li>Brand: —</li>
+    <li>Model: —</li>
+    <li>Revision: —</li>
+    <li>Generator type: —</li>
+    <li>Approximate output: —</li>
+  `;
+  if (altBox) altBox.style.display = "none";
+  if (altText) altText.innerHTML = "";
+
+  window._lastCheck = null;
+}
+
 function openEmailDraft(source) {
   source = source || "results";
 
@@ -978,6 +1001,7 @@ const subject = encodeURIComponent(
 
 </body>
 </html>
+
 
 
 
